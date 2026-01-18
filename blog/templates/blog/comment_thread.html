@@ -1,0 +1,36 @@
+{% for comment in comments %}
+<div class="comment mb-3 p-3 glass-card" style="margin-left: {{ depth|default:0|add:0 }}rem;">
+    <div class="d-flex align-items-center mb-2">
+        <div class="rounded-circle bg-violet d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 14px;">
+            👤
+        </div>
+        <div>
+            <strong class="text-violet">{{ comment.author.username }}</strong>
+            <small class="text-muted ms-2">{{ comment.created_at|timesince }}</small>
+        </div>
+    </div>
+    
+    <p class="mb-2">{{ comment.body }}</p>
+    
+    {% if user.is_authenticated %}
+    <button class="btn btn-link btn-sm text-violet p-0" type="button" data-bs-toggle="collapse" data-bs-target="#replyForm{{ comment.id }}">
+        🦋 Répondre
+    </button>
+    
+    <div class="collapse mt-2" id="replyForm{{ comment.id }}">
+        <form method="post" class="reply-form">
+            {% csrf_token %}
+            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+            <div class="mb-2">
+                <textarea name="body" class="form-control form-control-sm" rows="2" placeholder="Votre réponse..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-violet btn-sm">Envoyer 🦋</button>
+        </form>
+    </div>
+    {% endif %}
+    
+    {% if comment.replies.all %}
+        {% include 'blog/comment_thread.html' with comments=comment.replies.all depth=depth|default:0|add:1 %}
+    {% endif %}
+</div>
+{% endfor %}

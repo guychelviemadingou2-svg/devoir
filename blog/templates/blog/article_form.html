@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="writing-space">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-xl-8 col-lg-10">
+                <div class="writer-card">
+                    <!-- Header -->
+                    <div class="writer-header">
+                        <div class="writer-title">
+                            <span class="writer-icon">✍️</span>
+                            <h2>Nouvel Article</h2>
+                        </div>
+                        <div class="writer-actions">
+                            <button type="button" class="btn-minimal" onclick="saveDraft()">
+                                💾 Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form method="post" enctype="multipart/form-data" class="writer-form">
+                        {% csrf_token %}
+                        
+                        <!-- Titre -->
+                        <div class="field-group">
+                            <label class="field-label">Titre</label>
+                            {{ form.title }}
+                            <div class="field-hint">Un titre accrocheur pour votre article</div>
+                        </div>
+
+                        <!-- Image -->
+                        <div class="field-group">
+                            <label class="field-label">Image de couverture</label>
+                            <div class="image-drop" onclick="document.getElementById('id_image').click()">
+                                <div class="drop-content" id="dropContent">
+                                    <div class="drop-icon">📸</div>
+                                    <p>Cliquez pour ajouter une image</p>
+                                </div>
+                                <div class="image-preview" id="imagePreview" style="display: none;">
+                                    <img id="previewImg" src="" alt="Preview">
+                                    <button type="button" class="remove-btn" onclick="removeImage()">×</button>
+                                </div>
+                            </div>
+                            {{ form.image }}
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="field-group">
+                            <label class="field-label">Tags</label>
+                            {{ form.tags }}
+                            <div class="tags-quick">
+                                <span class="quick-tag" onclick="addQuickTag('tech')">tech</span>
+                                <span class="quick-tag" onclick="addQuickTag('web')">web</span>
+                                <span class="quick-tag" onclick="addQuickTag('django')">django</span>
+                                <span class="quick-tag" onclick="addQuickTag('tutorial')">tutorial</span>
+                            </div>
+                        </div>
+
+                        <!-- Contenu -->
+                        <div class="field-group">
+                            <label class="field-label">Contenu</label>
+                            {{ form.content }}
+                            <div class="content-stats">
+                                <span id="wordCount">0 mots</span>
+                                <span id="readTime">0 min</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="submit-section">
+                            <button type="submit" class="btn-publish">
+                                🚀 Publier l'article
+                            </button>
+                            <a href="{% url 'article_list' %}" class="btn-cancel">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .writing-space {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2d1b69 0%, #1a0b2e 100%);
+        padding: 2rem 0;
+    }
+
+    .writer-card {
+        background: rgba(26, 11, 46, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .writer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem 2rem 1rem;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .writer-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .writer-icon {
+        font-size: 2rem;
+    }
+
+    .writer-title h2 {
+        margin: 0;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .btn-minimal {
+        background: transparent;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        color: #a78bfa;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-minimal:hover {
+        background: rgba(139, 92, 246, 0.1);
+        border-color: #8b5cf6;
+        color: #ffffff;
+    }
+
+    .writer-form {
+        padding: 2rem;
+    }
+
+    .field-group {
+        margin-bottom: 2rem;
+    }
+
+    .field-label {
+        display: block;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .field-hint {
+        font-size: 0.8rem;
+        color: #a78bfa;
+        margin-top: 0.25rem;
+    }
+
+    #id_title, #id_content, #id_tags {
+        width: 100%;
+        border: 2px solid rgba(139, 92, 246, 0.3);
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: rgba(255, 255, 255, 0.05);
+        color: #ffffff;
+    }
+
+    #id_title:focus, #id_content:focus, #id_tags:focus {
+        outline: none;
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    #id_title::placeholder, #id_content::placeholder, #id_tags::placeholder {
+        color: #a78bfa;
+    }
+
+    #id_content {
+        min-height: 300px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.6;
+    }
+
+    .image-drop {
+        border: 2px dashed rgba(139, 92, 246, 0.4);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .image-drop:hover {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.1);
+    }
+
+    .drop-content p {
+        color: #a78bfa;
+        margin: 0;
+    }
+
+    .drop-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+    }
+
+    .tags-quick {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .quick-tag {
+        background: rgba(139, 92, 246, 0.2);
+        color: #a78bfa;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .quick-tag:hover {
+        background: #8b5cf6;
+        color: white;
+        border-color: #8b5cf6;
+    }
+
+    .content-stats {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #a78bfa;
+    }
+
+    .submit-section {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-publish {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-publish:hover {
+        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-cancel {
+        color: #a78bfa;
+        text-decoration: none;
+        padding: 1rem;
+        transition: color 0.2s;
+    }
+
+    .btn-cancel:hover {
+        color: #ffffff;
+    }
+
+    #id_image {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .writing-space {
+            padding: 1rem 0;
+        }
+        
+        .writer-form {
+            padding: 1rem;
+        }
+        
+        .writer-header {
+            padding: 1rem;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<script>
+    // Image preview
+    document.getElementById('id_image').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('dropContent').style.display = 'none';
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('previewImg').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function removeImage() {
+        document.getElementById('id_image').value = '';
+        document.getElementById('dropContent').style.display = 'block';
+        document.getElementById('imagePreview').style.display = 'none';
+    }
+
+    // Quick tags
+    function addQuickTag(tag) {
+        const tagsInput = document.getElementById('id_tags');
+        const current = tagsInput.value;
+        const tags = current ? current.split(',').map(t => t.trim()) : [];
+        
+        if (!tags.includes(tag)) {
+            tags.push(tag);
+            tagsInput.value = tags.join(', ');
+        }
+    }
+
+    // Content stats
+    document.getElementById('id_content').addEventListener('input', function() {
+        const text = this.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        const readTime = Math.ceil(words / 200);
+        
+        document.getElementById('wordCount').textContent = words + ' mots';
+        document.getElementById('readTime').textContent = readTime + ' min';
+    });
+
+    // Save draft
+    function saveDraft() {
+        localStorage.setItem('draft_title', document.getElementById('id_title').value);
+        localStorage.setItem('draft_content', document.getElementById('id_content').value);
+        localStorage.setItem('draft_tags', document.getElementById('id_tags').value);
+        
+        // Show notification
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✅ Sauvegardé';
+        btn.style.background = '#10b981';
+        btn.style.color = 'white';
+        btn.style.borderColor = '#10b981';
+        
+        setTimeout(() => {
+            btn.textContent = original;
+            btn.style.background = 'transparent';
+            btn.style.color = '#666';
+            btn.style.borderColor = '#ddd';
+        }, 2000);
+    }
+
+    // Load draft
+    window.addEventListener('load', function() {
+        const title = localStorage.getItem('draft_title');
+        const content = localStorage.getItem('draft_content');
+        const tags = localStorage.getItem('draft_tags');
+        
+        if (title && !document.getElementById('id_title').value) {
+            document.getElementById('id_title').value = title;
+        }
+        if (content && !document.getElementById('id_content').value) {
+            document.getElementById('id_content').value = content;
+            document.getElementById('id_content').dispatchEvent(new Event('input'));
+        }
+        if (tags && !document.getElementById('id_tags').value) {
+            document.getElementById('id_tags').value = tags;
+        }
+    });
+</script>
+{% endblock %}

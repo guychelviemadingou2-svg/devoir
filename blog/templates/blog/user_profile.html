@@ -1,0 +1,772 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section avec parallax -->
+<div class="profile-hero">
+    <div class="hero-background">
+        {% if profile.cover_image %}
+            <img src="{{ profile.cover_image.url }}" class="hero-bg-image">
+        {% else %}
+            <div class="hero-gradient"></div>
+        {% endif %}
+        <div class="hero-overlay"></div>
+    </div>
+    
+    <!-- Avatar central avec animations -->
+    <div class="avatar-section">
+        <div class="avatar-container">
+            {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" class="main-avatar">
+            {% else %}
+                <div class="main-avatar default-avatar">👤</div>
+            {% endif %}
+            
+            <!-- Rings animés -->
+            <div class="avatar-ring ring-1"></div>
+            <div class="avatar-ring ring-2"></div>
+            <div class="avatar-ring ring-3"></div>
+            
+            <!-- Status badges -->
+            {% if profile.is_verified %}
+                <div class="status-badge verified">✓</div>
+            {% endif %}
+            <div class="status-badge online"></div>
+            
+            <!-- Hover overlay -->
+            {% if is_own_profile %}
+                <div class="avatar-hover-overlay">
+                    <span class="camera-icon">📷</span>
+                    <span class="change-text">Modifier</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Info principale -->
+        <div class="profile-main-info">
+            <h1 class="profile-name">{{ profile.full_name }}</h1>
+            <p class="profile-username">@{{ profile_user.username }}</p>
+            {% if profile.bio %}
+                <p class="profile-bio">{{ profile.bio }}</p>
+            {% endif %}
+            
+            <!-- Stats rapides -->
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ profile.article_count }}</span>
+                    <span class="stat-label">Articles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ profile.total_likes_received }}</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ profile.total_views_received }}</span>
+                    <span class="stat-label">Vues</span>
+                </div>
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="profile-actions">
+                {% if is_own_profile %}
+                    <a href="{% url 'edit_profile' %}" class="btn-primary">✏️ Modifier le profil</a>
+                    <a href="{% url 'account_settings' %}" class="btn-secondary">⚙️ Paramètres</a>
+                {% else %}
+                    <button class="btn-primary">👥 Suivre</button>
+                    <button class="btn-secondary">💌 Message</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu principal -->
+<div class="profile-content">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar info -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <h3 class="card-title">📍 Informations</h3>
+                    <div class="info-list">
+                        {% if profile.location %}
+                            <div class="info-item">
+                                <span class="info-icon">🌍</span>
+                                <span class="info-text">{{ profile.location }}</span>
+                            </div>
+                        {% endif %}
+                        {% if profile.website %}
+                            <div class="info-item">
+                                <span class="info-icon">🔗</span>
+                                <a href="{{ profile.website }}" class="info-link">Site web</a>
+                            </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <span class="info-icon">📅</span>
+                            <span class="info-text">Membre depuis {{ profile.created_at|date:"M Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Réseaux sociaux -->
+                {% if profile.social_facebook or profile.social_twitter or profile.social_linkedin or profile.social_instagram %}
+                    <div class="info-card">
+                        <h3 class="card-title">🌐 Réseaux sociaux</h3>
+                        <div class="social-grid">
+                            {% if profile.social_facebook %}
+                                <a href="{{ profile.social_facebook }}" class="social-link facebook">📘</a>
+                            {% endif %}
+                            {% if profile.social_twitter %}
+                                <a href="{{ profile.social_twitter }}" class="social-link twitter">🐦</a>
+                            {% endif %}
+                            {% if profile.social_linkedin %}
+                                <a href="{{ profile.social_linkedin }}" class="social-link linkedin">💼</a>
+                            {% endif %}
+                            {% if profile.social_instagram %}
+                                <a href="{{ profile.social_instagram }}" class="social-link instagram">📷</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Contenu principal -->
+            <div class="col-lg-8">
+                <!-- Onglets modernes -->
+                <div class="modern-tabs">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" data-tab="articles">
+                            <span class="tab-icon">📝</span>
+                            <span class="tab-text">Articles</span>
+                            <span class="tab-count">{{ user_articles.count }}</span>
+                        </button>
+                        <button class="tab-btn" data-tab="liked">
+                            <span class="tab-icon">❤️</span>
+                            <span class="tab-text">Favoris</span>
+                            <span class="tab-count">{{ profile_user.blog_posts.count }}</span>
+                        </button>
+                        <button class="tab-btn" data-tab="activity">
+                            <span class="tab-icon">📊</span>
+                            <span class="tab-text">Activité</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Contenu des onglets -->
+                    <div class="tab-content">
+                        <!-- Articles -->
+                        <div class="tab-pane active" id="articles">
+                            {% if user_articles %}
+                                <div class="articles-grid">
+                                    {% for article in user_articles %}
+                                        <div class="article-card">
+                                            {% if article.image %}
+                                                <div class="article-image">
+                                                    <img src="{{ article.image.url }}" alt="{{ article.title }}">
+                                                </div>
+                                            {% endif %}
+                                            <div class="article-content">
+                                                <h4 class="article-title">
+                                                    <a href="{% url 'article_detail' article.pk %}">{{ article.title }}</a>
+                                                </h4>
+                                                <p class="article-excerpt">{{ article.content|truncatewords:20 }}</p>
+                                                <div class="article-meta">
+                                                    <span class="meta-item">📅 {{ article.created_at|date:"d M Y" }}</span>
+                                                    <span class="meta-item">👁️ {{ article.views }}</span>
+                                                    <span class="meta-item">❤️ {{ article.total_likes }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <div class="empty-icon">📝</div>
+                                    <h3>Aucun article publié</h3>
+                                    <p>{% if is_own_profile %}Commencez à écrire pour partager vos idées !{% else %}Cet utilisateur n'a pas encore publié d'articles.{% endif %}</p>
+                                    {% if is_own_profile %}
+                                        <a href="{% url 'article_create' %}" class="btn-primary">✍️ Écrire mon premier article</a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Favoris -->
+                        <div class="tab-pane" id="liked">
+                            {% if profile_user.blog_posts.all %}
+                                <div class="liked-list">
+                                    {% for article in profile_user.blog_posts.all|slice:":10" %}
+                                        <div class="liked-item">
+                                            {% if article.image %}
+                                                <img src="{{ article.image.url }}" class="liked-thumb">
+                                            {% else %}
+                                                <div class="liked-thumb-default">📝</div>
+                                            {% endif %}
+                                            <div class="liked-content">
+                                                <h5><a href="{% url 'article_detail' article.pk %}">{{ article.title }}</a></h5>
+                                                <p>Par {{ article.author.username }} • {{ article.created_at|date:"d M Y" }}</p>
+                                            </div>
+                                            <div class="liked-stats">❤️ {{ article.total_likes }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <div class="empty-icon">❤️</div>
+                                    <h3>Aucun article aimé</h3>
+                                    <p>Les articles que vous aimez apparaîtront ici.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Activité -->
+                        <div class="tab-pane" id="activity">
+                            <div class="activity-timeline">
+                                {% for article in user_articles|slice:":5" %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-icon">📝</div>
+                                        <div class="timeline-content">
+                                            <h5>Article publié</h5>
+                                            <p><a href="{% url 'article_detail' article.pk %}">{{ article.title }}</a></p>
+                                            <span class="timeline-date">{{ article.created_at|timesince }} ago</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">👤</div>
+                                    <div class="timeline-content">
+                                        <h5>Inscription</h5>
+                                        <p>A rejoint la communauté</p>
+                                        <span class="timeline-date">{{ profile_user.date_joined|date:"d M Y" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hero Section */
+.profile-hero {
+    position: relative;
+    height: 60vh;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-gradient {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(1px);
+}
+
+/* Avatar Section */
+.avatar-section {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    color: white;
+}
+
+.avatar-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 2rem;
+}
+
+.main-avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 6px solid white;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.default-avatar {
+    background: linear-gradient(135deg, #6f42c1, #8e44ad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.avatar-ring {
+    position: absolute;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: pulse-ring 3s infinite;
+}
+
+.ring-1 {
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    animation-delay: 0s;
+}
+
+.ring-2 {
+    top: -25px;
+    left: -25px;
+    right: -25px;
+    bottom: -25px;
+    animation-delay: 1s;
+}
+
+.ring-3 {
+    top: -35px;
+    left: -35px;
+    right: -35px;
+    bottom: -35px;
+    animation-delay: 2s;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+.status-badge {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid white;
+}
+
+.verified {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    animation: bounce 2s infinite;
+}
+
+.online {
+    bottom: 30px;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    background: #28a745;
+    animation: pulse-online 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes pulse-online {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.avatar-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.avatar-container:hover .avatar-hover-overlay {
+    opacity: 1;
+}
+
+.camera-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Profile Info */
+.profile-name {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.profile-username {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.profile-bio {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    opacity: 0.9;
+}
+
+.quick-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6f42c1, #8e44ad);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(111, 66, 193, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Content Section */
+.profile-content {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 50vh;
+}
+
+.info-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    color: #6f42c1;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.info-icon {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.info-link {
+    color: #6f42c1;
+    text-decoration: none;
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 1rem;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.social-link:hover {
+    transform: translateY(-3px) scale(1.05);
+}
+
+/* Tabs */
+.modern-tabs {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.tab-nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1.5rem;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6c757d;
+}
+
+.tab-btn.active {
+    background: #6f42c1;
+    color: white;
+}
+
+.tab-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.tab-content {
+    padding: 2rem;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Articles Grid */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.article-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+}
+
+.article-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.article-content {
+    padding: 1.5rem;
+}
+
+.article-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.article-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Timeline */
+.activity-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #6f42c1, transparent);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.timeline-icon {
+    width: 40px;
+    height: 40px;
+    background: #6f42c1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.timeline-content h5 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.timeline-date {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-name {
+        font-size: 2rem;
+    }
+    
+    .quick-stats {
+        gap: 1.5rem;
+    }
+    
+    .profile-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .main-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Gestion des onglets
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Retirer active de tous les boutons et panes
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        
+        // Ajouter active au bouton cliqué
+        btn.classList.add('active');
+        
+        // Afficher le pane correspondant
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+    });
+});
+</script>
+{% endblock %}

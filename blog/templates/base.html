@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Blog Interactif{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-violet: #6f42c1;
+            --secondary-violet: #8e44ad;
+            --dark-violet: #1a0633;
+            --deep-purple: #0f041d;
+            --glass-purple: rgba(45, 0, 89, 0.7);
+            --soft-violet: #a29bfe;
+            --text-light: #f3e5f5;
+        }
+        body { 
+            background: linear-gradient(135deg, var(--deep-purple) 0%, var(--dark-violet) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Butterfly Animation */
+        .butterfly-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .butterfly {
+            position: absolute;
+            font-size: 24px;
+            animation: float 15s infinite linear;
+            opacity: 0.3;
+        }
+        @keyframes float {
+            0% { transform: translate(-100px, 100vh) rotate(0deg); }
+            25% { transform: translate(25vw, 50vh) rotate(20deg); }
+            50% { transform: translate(50vw, 75vh) rotate(-20deg); }
+            75% { transform: translate(75vw, 25vh) rotate(10deg); }
+            100% { transform: translate(110vw, -100px) rotate(0deg); }
+        }
+        
+        .navbar { 
+            background: rgba(26, 6, 51, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(111, 66, 193, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        .btn-violet { 
+            background: linear-gradient(45deg, var(--primary-violet), var(--secondary-violet));
+            color: white; border: none; border-radius: 25px; padding: 10px 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-violet:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(111, 66, 193, 0.4); color: white; }
+        
+        .glass-card {
+            background: var(--glass-purple);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(111, 66, 193, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: var(--text-light);
+        }
+        .text-violet { color: var(--soft-violet) !important; }
+        .text-muted { color: #b39ddb !important; }
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(111, 66, 193, 0.3);
+            color: white;
+        }
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--soft-violet);
+            color: white;
+            box-shadow: 0 0 0 0.25rem rgba(162, 155, 254, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="butterfly-container">
+        <div class="butterfly" style="left: 10%; animation-delay: 0s;">🦋</div>
+        <div class="butterfly" style="left: 30%; animation-delay: 4s;">🦋</div>
+        <div class="butterfly" style="left: 60%; animation-delay: 8s;">🦋</div>
+        <div class="butterfly" style="left: 80%; animation-delay: 2s;">🦋</div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'article_list' %}">💜 MyBlog</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'article_list' %}">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tag_list' %}">Tags</a></li>
+                </ul>
+                
+                <!-- Barre de recherche -->
+                <form class="d-flex me-3" method="get" action="{% url 'search_articles' %}">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Rechercher..." aria-label="Search" style="width: 200px;">
+                    <button class="btn btn-outline-light btn-sm" type="submit">🔍</button>
+                </form>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'article_create' %}">✍️ Écrire</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.profile and user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" class="rounded-circle me-1" width="24" height="24" style="object-fit: cover;">
+                                {% else %}
+                                    👤
+                                {% endif %}
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">👤 Mon Profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'edit_profile' %}">✏️ Modifier le profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'account_settings' %}">⚙️ Paramètres</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">🚪 Déconnexion</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Connexion</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Inscription</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

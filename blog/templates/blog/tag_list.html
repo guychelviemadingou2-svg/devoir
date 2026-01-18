@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="tags-universe">
+    <!-- Header avec animation -->
+    <div class="tags-header text-center mb-5">
+        <div class="floating-tags">
+            <span class="tag-float" style="--delay: 0s;">🏷️</span>
+            <span class="tag-float" style="--delay: 0.5s;">📚</span>
+            <span class="tag-float" style="--delay: 1s;">✨</span>
+        </div>
+        <h1 class="display-4 text-white mb-3">Univers des Tags</h1>
+        <p class="lead text-light">Explorez les thématiques et découvrez de nouveaux horizons</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="stats-bar mb-5">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">🏷️</div>
+                    <div class="stat-number">{{ tags.count }}</div>
+                    <div class="stat-label">Tags Actifs</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-number">{{ total_articles|default:0 }}</div>
+                    <div class="stat-label">Articles Tagués</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-number">{{ most_used_tag.article_count|default:0 }}</div>
+                    <div class="stat-label">Tag le Plus Populaire</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grille des tags -->
+    <div class="tags-grid">
+        {% for tag in tags %}
+            <div class="tag-card">
+                <div class="tag-card-inner">
+                    <div class="tag-header">
+                        <div class="tag-badge" style="background: {{ tag.color }}">
+                            {{ tag.name }}
+                        </div>
+                        <div class="tag-popularity">
+                            {% if tag.article_count > 10 %}
+                                <span class="popularity-badge hot">🔥 Populaire</span>
+                            {% elif tag.article_count > 5 %}
+                                <span class="popularity-badge trending">📈 Tendance</span>
+                            {% else %}
+                                <span class="popularity-badge new">✨ Nouveau</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="tag-stats">
+                        <div class="articles-count">
+                            <span class="count-number">{{ tag.article_count }}</span>
+                            <span class="count-label">article{{ tag.article_count|pluralize }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tag-actions">
+                        <a href="{% url 'article_list' %}?tag={{ tag.slug }}" class="btn-explore">
+                            <span class="btn-text">Explorer</span>
+                            <span class="btn-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">🏷️</div>
+                <h3>Aucun tag disponible</h3>
+                <p>Les tags apparaîtront automatiquement avec la publication d'articles.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .tags-universe {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem 0;
+    }
+
+    .tags-header {
+        position: relative;
+        padding: 3rem 0;
+    }
+
+    .floating-tags {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 100px;
+    }
+
+    .tag-float {
+        position: absolute;
+        font-size: 2rem;
+        animation: float 3s ease-in-out infinite;
+        animation-delay: var(--delay);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .stats-bar {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-card {
+        text-align: center;
+        color: white;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .tags-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .tag-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .tag-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .tag-card-inner {
+        padding: 1.5rem;
+    }
+
+    .tag-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .tag-badge {
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .popularity-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .popularity-badge.hot {
+        background: rgba(255, 69, 0, 0.2);
+        color: #ff4500;
+    }
+
+    .popularity-badge.trending {
+        background: rgba(255, 165, 0, 0.2);
+        color: #ffa500;
+    }
+
+    .popularity-badge.new {
+        background: rgba(50, 205, 50, 0.2);
+        color: #32cd32;
+    }
+
+    .tag-stats {
+        text-align: center;
+        margin: 1.5rem 0;
+    }
+
+    .count-number {
+        display: block;
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .count-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .tag-actions {
+        text-align: center;
+    }
+
+    .btn-explore {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .btn-explore:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .btn-arrow {
+        transition: transform 0.3s ease;
+    }
+
+    .btn-explore:hover .btn-arrow {
+        transform: translateX(5px);
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        color: white;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .empty-state p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    @media (max-width: 768px) {
+        .tags-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-bar {
+            padding: 1rem;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

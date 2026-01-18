@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="glass-card p-5 text-center">
+            <div class="mb-4">
+                <span style="font-size: 50px;">😊</span>
+                <h2 class="text-violet fw-bold mt-2">Inscription</h2>
+                <p class="text-muted">Rejoignez notre communauté de papillons</p>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3 text-start">
+                        <label class="form-label text-violet fw-semibold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-violet">S'inscrire</button>
+                </div>
+            </form>
+            <div class="mt-4 pt-3 border-top">
+                <p class="small">Déjà inscrit ? <a href="{% url 'login' %}" class="text-violet fw-bold text-decoration-none">Se connecter 🦋</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    input[type="text"], input[type="password"], input[type="email"] {
+        border-radius: 15px;
+        border: 2px solid #eee;
+        padding: 12px;
+        width: 100%;
+    }
+</style>
+{% endblock %}

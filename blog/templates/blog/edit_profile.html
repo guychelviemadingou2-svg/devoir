@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="glass-card p-5">
+            <div class="text-center mb-4">
+                <span style="font-size: 50px;">😊</span>
+                <h2 class="text-violet fw-bold mt-2">Paramètres du profil</h2>
+                <p class="text-muted">Personnalisez votre profil et vos préférences</p>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Informations personnelles -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="text-violet fw-bold mb-3">👤 Informations personnelles</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Prénom</label>
+                                {{ form.first_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Nom</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Téléphone</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Localisation</label>
+                                {{ form.location }}
+                                {% if form.location.errors %}
+                                    <div class="text-danger small">{{ form.location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Date de naissance</label>
+                                {{ form.birth_date }}
+                                {% if form.birth_date.errors %}
+                                    <div class="text-danger small">{{ form.birth_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-violet fw-semibold">Bio</label>
+                        {{ form.bio }}
+                        <div class="form-text">Parlez-nous de vous en quelques mots (max 500 caractères)</div>
+                        {% if form.bio.errors %}
+                            <div class="text-danger small">{{ form.bio.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Images -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="text-violet fw-bold mb-3">🖼️ Images de profil</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Photo de profil</label>
+                                {{ form.avatar }}
+                                <div class="form-text">Image carrée recommandée (400x400px)</div>
+                                {% if form.avatar.errors %}
+                                    <div class="text-danger small">{{ form.avatar.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">Image de couverture</label>
+                                {{ form.cover_image }}
+                                <div class="form-text">Image panoramique recommandée (1200x300px)</div>
+                                {% if form.cover_image.errors %}
+                                    <div class="text-danger small">{{ form.cover_image.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Liens et réseaux sociaux -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="text-violet fw-bold mb-3">🌐 Liens et réseaux sociaux</h5>
+                    <div class="mb-3">
+                        <label class="form-label text-violet fw-semibold">Site web</label>
+                        {{ form.website }}
+                        {% if form.website.errors %}
+                            <div class="text-danger small">{{ form.website.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">📘 Facebook</label>
+                                {{ form.social_facebook }}
+                                {% if form.social_facebook.errors %}
+                                    <div class="text-danger small">{{ form.social_facebook.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">🐦 Twitter</label>
+                                {{ form.social_twitter }}
+                                {% if form.social_twitter.errors %}
+                                    <div class="text-danger small">{{ form.social_twitter.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">💼 LinkedIn</label>
+                                {{ form.social_linkedin }}
+                                {% if form.social_linkedin.errors %}
+                                    <div class="text-danger small">{{ form.social_linkedin.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-violet fw-semibold">📷 Instagram</label>
+                                {{ form.social_instagram }}
+                                {% if form.social_instagram.errors %}
+                                    <div class="text-danger small">{{ form.social_instagram.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Paramètres de confidentialité -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="text-violet fw-bold mb-3">🔒 Confidentialité et notifications</h5>
+                    <div class="form-check mb-3">
+                        {{ form.is_private }}
+                        <label class="form-check-label text-violet fw-semibold" for="{{ form.is_private.id_for_label }}">
+                            Profil privé
+                        </label>
+                        <div class="form-text">Seuls vos abonnés pourront voir vos articles</div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        {{ form.email_notifications }}
+                        <label class="form-check-label text-violet fw-semibold" for="{{ form.email_notifications.id_for_label }}">
+                            Notifications par email
+                        </label>
+                        <div class="form-text">Recevoir des notifications pour les nouveaux likes et commentaires</div>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'user_profile' user.username %}" class="btn btn-outline-secondary me-md-2">Annuler</a>
+                    <button type="submit" class="btn btn-violet">💾 Sauvegarder les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+}
+</style>
+{% endblock %}
